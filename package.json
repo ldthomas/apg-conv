@@ -1,0 +1,25 @@
+{
+  "name": "apg-conv",
+  "version": "1.0.0",
+  "description": "Converts byte streams to JavaScript integer arrays and vice versa.",
+  "main": "./src/converter.js",
+  "bin": {
+    "apg-conv": "./bin/apg-conv"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "encoding",
+    "encode",
+    "decode",
+    "iconv",
+    "unicode",
+    "convert"
+  ],
+  "author": "Lowell D. Thomas <lowell@coasttocoastresearch.com> (http://coasttocoastresearch.com)",
+  "license": "BSD-3-Clause"
+}
