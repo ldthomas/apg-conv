@@ -1,8 +1,6 @@
+// This module contains the actual encoding and decoding algorithms.
 "use strict;"
 var _this = this;
-
-/* !!!! DEBUG !!!! */
-//  var assert = require("assert");
 
 /* decoding error codes */
 var NON_SHORTEST = 0xFFFFFFFC;
@@ -10,7 +8,7 @@ var TRAILING     = 0xFFFFFFFD;
 var RANGE        = 0xFFFFFFFE;
 var ILL_FORMED   = 0xFFFFFFFF;
 
-/* mask[n] = 2**n - 1, ie. mask[n] = bits on, mask[6] = %b111111 */
+/* mask[n] = 2**n - 1, ie. mask[n] = n bits on. e.g. mask[6] = %b111111 */
 var mask = [0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023];
 
 /* ascii[n] = 'HH', where 0xHH = n, eg. ascii[254] = 'FE' */
@@ -30,12 +28,13 @@ var ascii = [
 /* vector of base 64 characters */
 var base64chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=".split("");
 
-/* vaector of base 64 character codes */
+/* vector of base 64 character codes */
 var base64codes = [];
 base64chars.forEach(function(char){
   base64codes.push(char.charCodeAt(0));
 });
 
+// The UTF8 algorithms.
 exports.utf8 = {
     encode : function(chars) {
       var x,y,z,u;
@@ -172,7 +171,7 @@ exports.utf8 = {
   },
 }
 
-/*var UTF16BE  = "UTF16BE";*/
+//The UTF16BE algorithms.
 exports.utf16be = {
   encode : function(chars) {
     var bytes = [];
@@ -237,7 +236,7 @@ exports.utf16be = {
   },
 }
 
-/*var UTF16LE  = "UTF16LE";*/
+//The UTF16LE algorithms.
 exports.utf16le = {
   encode : function(chars) {
     var bytes = [];
@@ -302,7 +301,7 @@ exports.utf16le = {
   },
 }
 
-/*var UTF32BE  = "UTF32BE";*/
+//The UTF32BE algorithms.
 exports.utf32be = {
   encode : function(chars) {
     var buf = Buffer.alloc(chars.length * 4);
@@ -335,7 +334,7 @@ exports.utf32be = {
   }
 }
 
-/*var UTF32LE  = "UTF32LE";*/
+//The UTF32LE algorithms.
 exports.utf32le = {
   encode : function(chars) {
     var buf = Buffer.alloc(chars.length * 4);
@@ -368,7 +367,7 @@ exports.utf32le = {
   }
 }
 
-/*var UINT7    = "UINT7";*/
+//The UINT7 algorithms. ASCII or 7-bit unsigned integers.
 exports.uint7 = {
     encode : function(chars) {
       var buf = Buffer.alloc(chars.length);
@@ -391,7 +390,8 @@ exports.uint7 = {
       return chars;
     }
   }
-/*var UINT8    = "UINT8";*/
+
+//The UINT8 algorithms. BINARY, Latin 1 or 8-bit unsigned integers.
 exports.uint8 = {
   encode : function(chars) {
     var buf = Buffer.alloc(chars.length);
@@ -412,7 +412,7 @@ exports.uint8 = {
   }
 }
 
-/*var UINT16BE = "UINT16BE";*/
+//The UINT16BE algorithms. Big-endian 16-bit unsigned integers.
 exports.uint16be = {
   encode : function(chars) {
     var buf = Buffer.alloc(chars.length * 2);
@@ -438,7 +438,7 @@ exports.uint16be = {
   }
 }
 
-/*var UINT16LE = "UINT16LE";*/
+//The UINT16LE algorithms. Little-endian 16-bit unsigned integers.
 exports.uint16le = {
   encode : function(chars) {
     var buf = Buffer.alloc(chars.length * 2);
@@ -464,7 +464,7 @@ exports.uint16le = {
   }
 }
 
-/*var UINT32BE = "UINT32BE";*/
+//The UINT32BE algorithms. Big-endian 32-bit unsigned integers.
 exports.uint32be = {
   encode : function(chars) {
     var buf = Buffer.alloc(chars.length * 4);
@@ -489,7 +489,7 @@ exports.uint32be = {
   }
 }
 
-/*var UINT32LE = "UINT32LE";*/
+//The UINT32LE algorithms. Little-endian 32-bit unsigned integers.
 exports.uint32le = {
   encode : function(chars) {
     var buf = Buffer.alloc(chars.length * 4);
@@ -515,28 +515,22 @@ exports.uint32le = {
   }
 }
 
-/*var STRING   = "STRING";*/
+// The STRING algorithms. Converts JavaScript strings to Array of 32-bit integers and vice versa. 
+// Uses the node.js Buffer's native "utf16le" capabilites.
 exports.string = {
   encode: function(chars){
-//      var str = "";
-//      for(var i = 0; i < chars.length; i += 1){
-//        var char = chars[i];
-//        if((char >= 0xd800 && char <= 0xdfff) || char > 0x10ffff){
-//          throw new RangeError("string.encode: character to encode out of range: " + char)
-//        }
-//        str += String.fromCodePoint(char);
-//      }
-//      return str;
     return _this.utf16le.encode(chars).toString("utf16le");
   },
   decode: function(str){
-    /* use Buffer to interpret the character encoding of a JavaScript string */
     return _this.utf16le.decode({bom: 0, data: Buffer.from(str, "utf16le")});
   }
 }
 
-/*var ESCAPED  = "ESCAPED";*/
+//The ESCAPED algorithms. 
+// Note that ESCAPED format contains only ASCII characters.
+// The characters are always in the form of a Buffer of bytes.
 exports.escaped = {
+// Encodes an Array of 32-bit integers into ESCAPED format.
   encode : function(chars) {
     var bytes = [];
     for (var i = 0; i < chars.length; i += 1) {
@@ -574,6 +568,7 @@ exports.escaped = {
     }
     return Buffer.from(bytes);
   },
+  // Decodes ESCAPED format from a Buffer of bytes to an Array of 32-bit integers.
   decode : function(buf) {
     function isHex(hex){
       if((hex >= 48 && hex <= 57) || (hex >= 65 && hex <= 70) || (hex >= 97 && hex <= 102)){
@@ -689,7 +684,7 @@ exports.escaped = {
   }
 }
 
-/* CRLF: & LF: prefix line conversions */
+// The line end conversion algorigthms.
 var CR = 13;
 var LF = 10;
 exports.lineEnds = {
@@ -753,9 +748,9 @@ exports.lineEnds = {
       return lfchars;
     }
 }
+
+// The base 64 algorithms.
 exports.base64 = {
-  /* Converts Buffer of arbitrary 8-bit integers to a Buffer of 7-bit base 64 character codes. */
-  /* buf[8-bit data] -> buf[base64] */
   encode : function(buf) {
     if(buf.length === 0){
       return Buffer.alloc(0);
@@ -800,8 +795,6 @@ exports.base64 = {
       return base64;
     }
   },
-  /* Converts Buffer of 7-bit, base 64 character codes to a Buffer of 8-bit integers. */
-  /* buf[base64] -> buf[8-bit data] */
   decode: function(codes){
     /* remove white space and ctrl characters, validate & translate characters */
     function validate(buf){
@@ -818,12 +811,10 @@ exports.base64 = {
             break;
           }
           if (char >= 97 && char <= 122) {
-//              chars.push(char - 97 + 26);
             chars.push(char - 71);
             break;
           }
           if (char >= 48 && char <= 57) {
-//              chars.push(char - 48 + 52);
             chars.push(char + 4);
             break;
           }
@@ -870,7 +861,6 @@ exports.base64 = {
       return {tail: tail, buf: Buffer.from(chars)}
     }
     
-    /**/
     if(codes.length === 0){
       return Buffer.alloc(0);
     }
@@ -909,7 +899,7 @@ exports.base64 = {
     return buf;
     
   },
-  /* returns string with line breaks */
+  // Converts a base 64 Buffer of bytes to a JavaScript string with line breaks.
   toString: function(buf){
     if(buf.length % 4 > 0){
       throw new RangeError("base64.toString: input buffer length not multiple of 4: " + buf.length);
@@ -972,29 +962,4 @@ exports.base64 = {
     }
     return str;
   },
-  /* Encode a Buffer of 8-bit bytes. Return as base 64 string with line breaks. */
-  encodeString : function(buf) {
-    return this.toString(this.encode(buf));
-  },
-  /* Decode a base 64 string, ignoring white space and ctrl chars. Returns Buffer of 8-bit bytes. */
-  decodeString : function(str) {
-    return this.decode(this.toBuffer(str));
-  },
 }
-
-/* map of base 64 character codes to base 64 6-bit indexes */
-//var base64index = [
-//  /*  0*/0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
-//  /* 10*/0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
-//  /* 20*/0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
-//  /* 30*/0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
-//  /* 40*/0xff,0xff,0xff,62  ,0xff,0xff,0xff,63  ,52  ,53  ,
-//  /* 50*/54  ,55  ,56  ,57  ,58  ,59  ,60  ,61  ,0xff,0xff,
-//  /* 60*/0xff,64  ,0xff,0xff,0xff,0   ,1   ,2   ,3   ,4   ,
-//  /* 70*/5   ,6   ,7   ,8   ,9   ,10  ,11  ,12  ,13  ,14  ,
-//  /* 80*/15  ,16  ,17  ,18  ,19  ,20  ,21  ,22  ,23  ,24  ,
-//  /* 90*/25  ,0xff,0xff,0xff,0xff,0xff,0xff,26  ,27  ,28  ,
-//  /*100*/29  ,30  ,31  ,32  ,33  ,34  ,35  ,36  ,37  ,38  ,
-//  /*110*/39  ,40  ,41  ,42  ,43  ,44  ,45  ,46  ,47  ,48  ,
-//  /*120*/49  ,50  ,51  ,0xff,0xff,0xff,0xff,0xff,0xff,0xff
-//];

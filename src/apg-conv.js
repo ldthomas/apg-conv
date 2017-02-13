@@ -1,60 +1,10 @@
-// Usage:
-// 
-// apg-conv [options]
+// This module is the main function for command line usage.
+// It reads a source file and writes a destination file, converting the source format to the destination format.
+// The files are all treated as byte streams.
+// `stdin` and `stdout` are the default input and output streams.
 //
-// options:
-// * `(--src      | -s) <path>`, the file to convert, default stdin
-// * `(--src-type | -st) type`, the source file type, default UTF-8
-// * `(--dst      | -d) <path>`, the converted file, default stdout
-// * `(--dst-type | -dt) type`, the converted file type, default UTF-8
-// * `(--err      | -e) <path>`, the error reporting file, default stderr
-// 
-// Files are byte streams of the following types:
-// * `UTF-8`
-// * `UTF-16`
-// * `UTF-16BE`
-// * `UTF-16LE`
-// * `UTF-32`
-// * `UTF-32BE`
-// * `UTF-32LE`
-// * `UINT7`
-// * `ASCII`
-// * `UINT8`
-// * `BINARY`
-// * `UINT16`
-// * `UINT16BE`
-// * `UINT16LE`
-// * `UINT32`
-// * `UINT32BE`
-// * `UINT32LE`
-// * `ESCAPED`
-// 
-// Type notes:
-// * The type names are case insensitive.
-// * Source types may be prefixed with `BASE64:`.
-// The input will be treated as base64 encoded.
-// It will be stripped of white space and control characters (`\t, \r, \n`),
-// then base 64 decoded as an initial step.
-// * Destination types may have a `:BASE64` suffix.
-// The output will be base64 encoded as a final step.
-// * Destination types my be prefixed with `CRLF:`.
-// This will cause a line ending transformation prior to decoding.
-// `CRLF(\r\n), CR(\r) or LF(\n)` will be interpreted as line ends and transformed to `CRLF`.
-// `CRLF` will be added to the end if the last line end is missing.
-// * Destination types my be prefixed with `LF:`.
-// This will cause a line ending transformation prior to decoding.
-// `CRLF(\r\n), CR(\r) or LF(\n)` will be interpreted as line ends and transformed to `LF`.
-// `LF` will be added to the end if the last line end is missing.
-// * UTF type input data may have an optional Byte Order Mark (BOM) - [Unicode Standard](http://www.unicode.org/versions/Unicode9.0.0/ch03.pdf#G7404).
-// * UTF output data will not have a BOM.
-// * `UTF-16` defaults to `UTF-16BE` if there is no BOM.
-// * `UTF-32` defaults to `UTF-32BE` if there is no BOM.
-// * An exeption is thrown if a BOM is present and doesn't match the data type.
-// * `ASCII` is an alias for `UINT7`, 7-bit unsigned integers.
-// * `BINARY` is an alias for `UINT8`, 8-bit unsigned integers.
-// * `UINT16` is an alias for `UINT16BE`, big-endian, 16-bit unsigned integers.
-// * `UINT32` is an alias for `UINT32BE`, big-endian, 32-bit unsigned integers.
-// * The `ESCAPED` format is described [elsewhere](). 
+// Execute `apg-conv -h` to see the usage (reproduced in the [README](./README.html) file).
+
 module.exports = function(){
   "use strict;"
   var SRC_FILEL  = "--src";
@@ -83,7 +33,6 @@ module.exports = function(){
   var dstStream = process.stdout;
   var errStream = process.stderr;
   var srcBuf, dstBuf, chunkBuf;
-  debugger;
   try{
     /* get the input arguments */
     for(var i = 2; i < process.argv.length; i += 2){

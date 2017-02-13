@@ -1,105 +1,5 @@
-// This function takes a node.js Buffer byte stream as input,
-// converts it to an array of 32-bit integers and
-// outputs the array or an ASCII string translation of it.
-// Input types and output types control the respective formats.
-// The function argument is an object that supplies the input,
-// controls the interpetations of the input and output and
-// returns the output to the caller.
-// ````
-// io:         the function argument
-// io.typeIn:  the input data type,
-//             controls the interpretation of the byte stream
-// io.bufIn:   a node.js buffer of 8-bit bytes
-// io.typeOut: the output data type,
-//             controls the form of the output.
-// io.bufOut:  the output data,
-//             an array of 32-bit integers or a string
-// io.chars:   integer array of character codes,
-//             may be input or output, depending on types
-//````
-//  /* io prototype */
-//  var io = {
-//      typeIn: "",  /* type of data in the input byte stream, if any */
-//      bufIn: null, /* input byte stream, must be node.js Buffer, if any */
-//      typeOut: "", /* type of data in the output byte stream, if any */
-//      bufOut: null,/* output byte stream, a node.js Buffer, if any */
-//      chars: []    /* integer array of character codes */
-//                   /* may be input or output, depending on typeIn & typeOut */
-//  }
-
-//
-// The input types and their meaning:<br />
-// (For Unicode formats, see the [Unicode Encoding Forms](http://www.unicode.org/versions/Unicode9.0.0/ch03.pdf#G7404).)
-//````
-// [base64:]UTF8:    see D92 and D95
-// [base64:]UTF16:   see D91
-// [base64:]UTF16BE: see D91 and D96-98
-// [base64:]UTF16LE: see D91 and D96-98
-// [base64:]UTF32:   see D90
-// [base64:]UTF32BE: see D90 and D99-101
-// [base64:]UTF32LE: see D90 and D99-101
-// [base64:]UINT7:    7-bit integers, ASCII
-// [base64:]UINT8:    8-bit integers, binary or Latin-1
-// [base64:]UINT16:   16-bit integers, big endian byte order
-// [base64:]UINT16BE: 16-bit integers, big endian byte order
-// [base64:]UINT16LE: 16-bit integers, little endian byte order
-// [base64:]UINT32:   32-bit integers, big endian byte order
-// [base64:]UINT32BE: 32-bit integers, big endian byte order
-// [base64:]UINT32LE: 32-bit integers, little endian byte order
-// [base64:]ESCAPED:  7-bit ASCII, escaped non-ASCII characters
-//````
-//
-// The optional `base64:` prefix means that
-// the input will be interpreted as a [base64](https://en.wikipedia.org/wiki/Base64)
-// version of the format. For example:
-//
-// * `base64:UTF8` means that the input is a base64 encoding of a UTF-8 byte stream.<br />
-// * `base64:UINT32LE` means that the input is a base64 encoding of a little endian, 32-bit integer stream.
-//
-// Escaping is a format used by `apg.html` as a means of providing input of non-printing ASCII characters
-// in an HTML `textarea` to the generated parser.
-// (In fact, this module is the result that grew from the original
-// simple need to translate from an arbitrary integer character code array
-// to an `ESCAPED` format of printing, ASCII characters, suitable for use in an HTML page.)
-//
-// The JavaScript string escaping rules are used except that
-// the escape character is the grave accent (\`).
-// The backslash (\\) was rejected because of annoying conflicts with
-// the JavaScript string escape character.
-// Other special characters
-// were rejected because they required the shift key.
-// The escaped encoding rules are:
-//````
-// ``         literal grave accent (`)
-// `xhh       8-bit integer
-// `uhhhh     16-bit integer
-// `u{h...h}  h...h, 1-8 hex digits
-// h          hexadecimal digit, 0-9, a-f, or A-F
-//````
-// Reference: [UTF-16 converter](https://r12a.github.io/apps/conversion/)
-//
-// Note that the `"STRING"` type refers to JavaScript strings.
-// While JavaScript strings seem to usually be UTF-16 encoded characters
-// (see these [notes](https://mathiasbynens.be/notes/javascript-encoding))
-//`apg-conv` relies on the node.js Buffer to interpret them.
-//
-// Notes:
-//
-// * String means JavaScript string
-// * Buffer means node.js Buffer object
-//
-// Regarding `encode(type, data)`:
-//
-// * if type is "STRING", data must be a String
-// * if type is prefixed with "BASE64:", data may be a String or Buffer
-// * for all other types, data must be a Buffer
-//
-// Regarding `decode(type, chars)`
-//
-// * chars is an array of 32-bit integers
-// * if type is `"STRING"` a String is returned
-// * otherwise, a Buffer is returned
-//   (Use Buffer.toString([encoding]) with the appropriate encoding if a String output is desired.)
+// This module performs validation of the input and output requests
+// and public functions for encoding and decoding as well as data conversion.
 //
 "use strict;"
 var _this = this;
@@ -127,6 +27,7 @@ var ESCAPED  = "ESCAPED";
 var STRING   = "STRING";
 
 /* private functions */
+// Find the UTF8 Byte Order Mark, if any.
 var bom8 = function(src) {
   src.type = UTF8;
   var buf = src.data;
@@ -137,6 +38,9 @@ var bom8 = function(src) {
     }
   }
 }
+// Find the UTF16 Byte Order Mark, if any, and determine the UTF16 type.
+// Defaults to UTF16BE.
+// Throws exception if BOM does not match the specified type.
 var bom16 = function(src) {
   var buf = src.data;
   src.bom = 0;
@@ -177,6 +81,9 @@ var bom16 = function(src) {
     break;
   }
 }
+//Find the UTF32 Byte Order Mark, if any, and determine the UTF32 type..
+//Defaults to UTF32BE.
+//Throws exception if BOM does not match the specified type.
 var bom32 = function(src) {
   var buf = src.data;
   src.bom = 0;
@@ -220,6 +127,12 @@ var bom32 = function(src) {
     break;
   }
 }
+// Validates the source encoding type and matching data.
+// If the BASE64: prefix is present, the base 64 decoding is done here as the initial step.
+// For type STRING, data must be a JavaScript string.
+// For type BASE64:*, data may be a string or Buffer.
+// For all other types, data must be a Buffer.
+//The BASE64: prefix is not allowed for type STRING.
 var validateSrc = function(type, data){
   function getType(type){
     var ret = {
@@ -245,7 +158,7 @@ var validateSrc = function(type, data){
   if(ret.base64){
     /* handle base 64 */
     if(ret.type === STRING){
-      throw new TypeError('type: "' + type + ' "base64:" prefix not allowed with type '+STRING);
+      throw new TypeError('type: "' + type + ' "BASE64:" prefix not allowed with type '+STRING);
     }
     if(Buffer.isBuffer(data)){
       ret.data = trans.base64.decode(data);
@@ -308,6 +221,9 @@ var validateSrc = function(type, data){
   }
   return ret;
 }
+// Disassembles and validates the destination type.
+// `chars` must be an Array of integers.
+// The :BASE64 suffix is not allowed for type STRING.
 var validateDst = function(type, chars){
   function getType(type){
     var fix, rem;
@@ -368,7 +284,7 @@ var validateDst = function(type, chars){
     break;
   case STRING:
     if(ret.base64){
-      throw new TypeError('":base64" suffix not allowed with type '+STRING);
+      throw new TypeError('":BASE64" suffix not allowed with type '+STRING);
     }
     break;
   case ASCII:
@@ -395,7 +311,7 @@ var validateDst = function(type, chars){
   }
   return ret;
 }
-/* converts an integer (character) array to encoded byte stream */
+// Select and call the requested encoding function.
 var encode = function(type, chars){
   switch(type){
   case UTF8:
@@ -428,7 +344,8 @@ var encode = function(type, chars){
     throw new Error('encode type "'+type+'" not recognized')
   }
 }
-/* converts a byte stream to an integer (character) array */
+// Select and call the requested decoding function.
+// `src` contains Byte Order Mark information as well as the source type and data.
 var decode = function(src){
   switch(src.type){
   case UTF8:
@@ -462,13 +379,12 @@ var decode = function(src){
   }
 }
 
-
-/* converts byte stream of "type" to character (integer) array */
+// The public decoding function. Returns an array of integers.
 exports.decode = function(type, data) {
   var src = validateSrc(type, data);
   return decode(src);
 }
-/* converts character (integer) array to byte stream of "type" */
+// The public encoding function. Returns a Buffer-typed byte array.
 exports.encode = function(type, chars) {
   var c, buf;
   var dst = validateDst(type, chars);
@@ -489,7 +405,8 @@ exports.encode = function(type, chars) {
   }
   return buf;
 }
-/* converts data of type srcType, to byte stream of type dstType */
+// Converts data of type `srcType` to data of type `dstType`.
+// `srcData` may be a JavaScript String, or node.js Buffer, depending on the corresponding type.
 exports.convert = function(srcType, srcData, dstType) {
   return _this.encode(dstType, _this.decode(srcType, srcData));
 }
