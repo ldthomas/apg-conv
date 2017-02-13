@@ -9,6 +9,10 @@
   "scripts": {
     "test": "node index.js -h"
   },
+  "repository" :
+  { "type" : "git"
+  , "url" : "https://github.com/ldthomas/apg-conv.git"
+  },
   "files": [
     "src",
     "bin",
