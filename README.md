@@ -1,18 +1,25 @@
 # apg-conv
-**apg-conv** is a data conversion tool. It can run as a command line application to convert files from one encoding to another. It also provides encoding and decoding functions accessible from node.js applications.
+**apg-conv** is a command line data conversion tool.
+It is powered by [**apg-conv-api**](https://github.com/ldthomas/apg-conv-api),
+an API with both high- and low-level access to all of the format conversion tools. 
 
-Its features and design have been specifically built as an aid to [**apg.html**](https://github.com/ldthomas/apg-js2), a web-page-based [**APG**](https://github.com/ldthomas/apg-js2) parser generator and tester. It is not meant to compete with more complete tools like [iconv](https://www.npmjs.com/package/iconv) and [iconv-lite](https://www.npmjs.com/package/iconv-lite). Nonetheless, for the encodings that it supports, it provides an alternate choice.
+The features and design have been specifically built as an aid to [**apg.html**](https://github.com/ldthomas/apg-js2), a web-page-based [**APG**](https://github.com/ldthomas/apg-js2) parser generator and tester. It is not meant to compete with more complete tools like [iconv](https://www.npmjs.com/package/iconv) and [iconv-lite](https://www.npmjs.com/package/iconv-lite). Nonetheless, for the encodings that it supports, it provides an alternate choice.
 
-The original purpose of **apg-conv** was a means of getting arbitrary, 32-bit integer character codes in and out of an HTML `<textarea>`. The [ABNF](https://tools.ietf.org/html/rfc5234) syntax that defines the phrases that **APG** parses is capable of defining character codes of arbitrary-sized integers. However, with a web-page-based application, input and output is essentially constrained to the ASCII text of `<textarea>` and `<input>` HTML tags. (The [HTML5 File and Directory API](https://wicg.github.io/entries-api/) is not standardized and not considered here.) The encoding and decoding formats and methods neccesary to implement this eventually led to this stand-alone application.
+The original purpose of **apg-conv** was a means of getting arbitrary, 32-bit integer character codes in and out of an HTML `<textarea>`. The [ABNF](https://tools.ietf.org/html/rfc5234) syntax that defines the phrases that **APG** parses is capable of defining character codes of arbitrary-sized integers. However, with a web-page-based application, input and output is essentially constrained to the ASCII text of `<textarea>` and `<input>` HTML tags. (The [HTML5 File and Directory API](https://wicg.github.io/entries-api/) is not standardized and not considered here.) The encoding and decoding formats and methods neccesary to implement this eventually led to this application.
+
+#### v1.1.0 Release Notes
+There are no feature or usage changes from v1.0.0.
+However, **apg-conv** now has a dependency on [**apg-conv-api**](https://github.com/ldthomas/apg-conv-api).
+**apg-conv** has been split into two parts. First is **apg-conv**, which is now just an I/O shell for converting files.
+Second, all of the data conversion functionality is now in **apg-conv-api** 
+in the form of an API which a) does not use the node.js "fs" module and b) gives a developer better access to all functions.
+The "fs" module is incompatible with some development frameworks.  
 
 ## Installation
-For the command line tool:<br>
-`npm install -g apg-conv`<br>
-`apg-conv -h` *(displays the help screen)*
-
-For `node.js` applications:<br>
-`npm install apg-conv --save`<br>
-`var converter = require("apg-conv");`
+````
+npm install -g apg-conv
+apg-conv -h *(displays the help screen)*
+````
 
 ## Documentation:  
 The documentation is in the code in [`docco`](https://jashkenas.github.io/docco/) format.
@@ -28,6 +35,8 @@ View `docs/index.html` in any web browser to get started.
 ````
 Usage:
 apg-conv [options]
+(--help     | -h) display this help screen
+(--version  | -v) display version number
 (--src      | -s) <path>, the file to convert, default stdin
 (--src-type | -st) type, the source file type, default UTF8
 (--dst      | -d) <path>, the converted file, default stdout

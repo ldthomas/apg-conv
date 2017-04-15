@@ -11,6 +11,8 @@ module.exports = {
     help: function(){
       str  = "Usage:\n";
       str += "apg-conv [options]\n";
+      str += "(--help     | -h) display this help screen\n";
+      str += "(--version  | -v) display version number\n";
       str += "(--src      | -s) <path>, the file to convert, default stdin\n";
       str += "(--src-type | -st) type, the source file type, default UTF8\n";
       str += "(--dst      | -d) <path>, the converted file, default stdout\n";
@@ -92,6 +94,6 @@ module.exports = {
       return str;
     },
     version: function(){
-      return "apg-conv: version 1.0.0: Copyright (c) 2017 Lowell D. Thomas, all rights reserved";
+      return "apg-conv: version 1.1.0: Copyright (c) 2017 Lowell D. Thomas, all rights reserved";
     }
 }

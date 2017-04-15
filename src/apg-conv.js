@@ -6,6 +6,7 @@
 // Execute `apg-conv -h` to see the usage (reproduced in the [README](./README.html) file).
 
 module.exports = function(){
+  debugger;
   "use strict;"
   var SRC_FILEL  = "--src";
   var SRC_FILES  = "-s";
@@ -27,16 +28,19 @@ module.exports = function(){
   var dstFile  = "";
   var errFile  = "";
   var fs = require("fs");
+  var api = require("apg-conv-api");
   var help = require("./help.js");
-  var convert = (require("./converter.js")).convert;
+  var convert = api.converter.convert;
   var srcStream = process.stdin;
   var dstStream = process.stdout;
   var errStream = process.stderr;
   var srcBuf, dstBuf, chunkBuf;
+  var args = process.argv.slice(2);
   try{
     /* get the input arguments */
-    for(var i = 2; i < process.argv.length; i += 2){
-      var key = process.argv[i].toLowerCase(); 
+    args = args || [];
+    for(var i = 0; i < args.length; i += 2){
+      var key = args[i].toLowerCase(); 
       if(key === HELPL || key === HELPS){
         console.log(help.help());
         return;
@@ -46,10 +50,10 @@ module.exports = function(){
         return;
       }
       var i1 = i + 1;
-      if(i1 >= process.argv.length){
+      if(i1 >= args.length){
         throw new TypeError("no matching value for option: " + key);
       }
-      var value = process.argv[i1];
+      var value = args[i1];
       switch(key){
       case SRC_FILEL:
       case SRC_FILES:
