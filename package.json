@@ -14,7 +14,7 @@
   , "url" : "https://github.com/ldthomas/apg-conv.git"
   },
   "dependencies": {
-    "apg-conv-api": "1.x"
+    "apg-conv-api": "1.0.x"
   },
   "files": [
     "src",
