@@ -1,6 +1,6 @@
 {
   "name": "apg-conv",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Converts byte streams from one encoding to another. Decodes byte streams to integer arrays and vice versa.",
   "main": "./src/apg-conv.js",
   "bin": {
@@ -9,9 +9,9 @@
   "scripts": {
     "test": "apg-conv -h"
   },
-  "repository" :
-  { "type" : "git"
-  , "url" : "https://github.com/ldthomas/apg-conv.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ldthomas/apg-conv.git"
   },
   "dependencies": {
     "apg-conv-api": "1.0.x"
