@@ -115,4 +115,4 @@ apg-conv -s <inpath> -d <outpath> -st BASE64:UTF8 -dt LF:UTF16:BASE64
   then converted to wide characters (UTF16) and finally base64 encoded.
 ````
 (\*) See the [Unicode standard](http://www.unicode.org/versions/Unicode9.0.0/ch03.pdf) (3.10 Unicode Encoding Schemes) for Byte Order Marks.<br />
-(\*\*) [apg.html](https://github.com/ldthomas/apg-js2)
+(\*\*) [apg.html](https://github.com/ldthomas/apg-html)
