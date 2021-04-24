@@ -1,6 +1,6 @@
 # apg-conv
 
-> _**deprecated** Use the updated version [**apg-js**](https://github.com/ldthomas/apg-js)._
+> _**Deprecated** Use the updated version [**apg-js**](https://github.com/ldthomas/apg-js) instead._
 
 **apg-conv** is a command line data conversion tool.
 It is powered by [**apg-conv-api**](https://github.com/ldthomas/apg-conv-api),
