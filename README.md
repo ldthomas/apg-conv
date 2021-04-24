@@ -1,38 +1,46 @@
 # apg-conv
+
+> _**deprecated** Use the updated version [**apg-js**](https://github.com/ldthomas/apg-js)._
+
 **apg-conv** is a command line data conversion tool.
 It is powered by [**apg-conv-api**](https://github.com/ldthomas/apg-conv-api),
-an API with both high- and low-level access to all of the format conversion tools. 
+an API with both high- and low-level access to all of the format conversion tools.
 
 The features and design have been specifically built as an aid to [**apg.html**](https://github.com/ldthomas/apg-js2), a web-page-based [**APG**](https://github.com/ldthomas/apg-js2) parser generator and tester. It is not meant to compete with more complete tools like [iconv](https://www.npmjs.com/package/iconv) and [iconv-lite](https://www.npmjs.com/package/iconv-lite). Nonetheless, for the encodings that it supports, it provides an alternate choice.
 
 The original purpose of **apg-conv** was a means of getting arbitrary, 32-bit integer character codes in and out of an HTML `<textarea>`. The [ABNF](https://tools.ietf.org/html/rfc5234) syntax that defines the phrases that **APG** parses is capable of defining character codes of arbitrary-sized integers. However, with a web-page-based application, input and output is essentially constrained to the ASCII text of `<textarea>` and `<input>` HTML tags. (The [HTML5 File and Directory API](https://wicg.github.io/entries-api/) is not standardized and not considered here.) The encoding and decoding formats and methods neccesary to implement this eventually led to this application.
 
 #### v1.1.0 Release Notes
+
 There are no feature or usage changes from v1.0.0.
 However, **apg-conv** now has a dependency on [**apg-conv-api**](https://github.com/ldthomas/apg-conv-api).
 **apg-conv** has been split into two parts. First is **apg-conv**, which is now just an I/O shell for converting files.
-Second, all of the data conversion functionality is now in **apg-conv-api** 
+Second, all of the data conversion functionality is now in **apg-conv-api**
 in the form of an API which a) does not use the node.js "fs" module and b) gives a developer better access to all functions.
-The "fs" module is incompatible with some development frameworks.  
+The "fs" module is incompatible with some development frameworks.
 
 ## Installation
-````
+
+```
 npm install -g apg-conv
 apg-conv -h *(displays the help screen)*
-````
+```
 
-## Documentation:  
+## Documentation:
+
 The documentation is in the code in [`docco`](https://jashkenas.github.io/docco/) format.
 To generate the documentation, from the package directory:
+
 ```
 npm install -g docco
 ./docco-gen
 ```
+
 View `docs/index.html` in any web browser to get started.
 
 ## Usage
 
-````
+```
 Usage:
 apg-conv [options]
 (--help     | -h) display this help screen
@@ -113,6 +121,7 @@ apg-conv -s <inpath> -d <outpath> -st UTF8 -dt UTF32LE:BASE64
 apg-conv -s <inpath> -d <outpath> -st BASE64:UTF8 -dt LF:UTF16:BASE64
   The input file is base 64 decoded. All line ends(CRLF, LF or CR) are converted to LF(\n),
   then converted to wide characters (UTF16) and finally base64 encoded.
-````
+```
+
 (\*) See the [Unicode standard](http://www.unicode.org/versions/Unicode9.0.0/ch03.pdf) (3.10 Unicode Encoding Schemes) for Byte Order Marks.<br />
 (\*\*) [apg.html](https://github.com/ldthomas/apg-html)
